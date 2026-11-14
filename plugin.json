@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openarc",
+  "version": "0.2.0",
+  "description": "Turns a code change into an interactive architecture diagram for review.",
+  "author": { "name": "oceanscom" },
+  "license": "MIT",
+  "homepage": "https://github.com/oceanscom/OpenArc",
+  "repository": "https://github.com/oceanscom/OpenArc",
+  "keywords": ["architecture", "diagram", "code review", "diff"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "OpenArc",
+        "shortDescription": "Diagram a change for review",
+        "longDescription": "OpenArc turns a code change into an interactive architecture diagram: the components it adds, changes or removes, how control flows through them, Klar pseudocode for each function, and the risks a reviewer should weigh. It writes a single self-contained HTML page.",
+        "developerName": "oceanscom",
+        "category": "Developer Tools",
+        "capabilities": [],
+        "websiteURL": "https://github.com/oceanscom/OpenArc",
+        "defaultPrompt": "Make an OpenArc for the changes on this branch"
+      }
+    }
+  }
+}

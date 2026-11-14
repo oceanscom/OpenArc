@@ -1,0 +1,222 @@
+{
+  "$description": "Component sizes. The diagram layout reads these at runtime, so CSS and layout can never disagree. Vertical sizes are multiples of grid.unit.",
+  "sidebar": {
+    "$type": "dimension",
+    "width": {
+      "$value": "320px"
+    }
+  },
+  "inspector": {
+    "$type": "dimension",
+    "width": {
+      "$value": "544px"
+    }
+  },
+  "control": {
+    "$type": "dimension",
+    "height": {
+      "$value": "32px"
+    },
+    "height-sm": {
+      "$value": "24px"
+    },
+    "icon": {
+      "$value": "16px"
+    }
+  },
+  "badge": {
+    "$type": "dimension",
+    "size": {
+      "$value": "20px",
+      "$description": "Flow step numbers"
+    },
+    "dot": {
+      "$value": "8px",
+      "$description": "Status dots"
+    },
+    "mark": {
+      "$value": "18px",
+      "$description": "The square marking a wholly added or removed class"
+    }
+  },
+  "card": {
+    "$type": "dimension",
+    "width-min": {
+      "$value": "256px"
+    },
+    "width-max": {
+      "$value": "448px"
+    },
+    "padding-x": {
+      "$value": "{space.4}"
+    },
+    "padding-y": {
+      "$value": "{space.2}"
+    },
+    "head-height": {
+      "$value": "56px",
+      "$description": "padding-y + overline line + heading line + padding-y = 8 + 16 + 24 + 8"
+    },
+    "summary-height": {
+      "$value": "40px",
+      "$description": "Two caption lines (16px each) + padding-y"
+    },
+    "row-height": {
+      "$value": "32px"
+    },
+    "gutter": {
+      "$value": "12px",
+      "$description": "Width of the change mark column"
+    },
+    "kind": {
+      "$value": "40px",
+      "$description": "Width of the member kind column"
+    },
+    "row-bar": {
+      "$value": "3px",
+      "$description": "Bar on the leading edge of a changed member's row"
+    }
+  },
+  "diagram": {
+    "$type": "dimension",
+    "layer-gap": {
+      "$value": "96px",
+      "$description": "Horizontal space between columns of cards"
+    },
+    "node-gap": {
+      "$value": "32px",
+      "$description": "Vertical space between cards in a column"
+    },
+    "edge-gap": {
+      "$value": "4px",
+      "$description": "Space between an arrowhead and the card it points at"
+    },
+    "edge-width": {
+      "$value": "1.5px"
+    },
+    "edge-width-strong": {
+      "$value": "2.5px"
+    },
+    "flow-width": {
+      "$value": "3px"
+    },
+    "arrow-length": {
+      "$value": "10px",
+      "$description": "Tip to back corners of an arrowhead at normal weight"
+    },
+    "arrow-width": {
+      "$value": "9px",
+      "$description": "Width across the back of an arrowhead"
+    },
+    "arrow-notch": {
+      "$type": "number",
+      "$value": 0.7,
+      "$description": "How far back the notch sits, as a share of arrow-length; lines end here"
+    },
+    "arrow-scale-strong": {
+      "$type": "number",
+      "$value": 1.4,
+      "$description": "Arrowhead scale for emphasised edges, matching edge-width-strong"
+    },
+    "dot": {
+      "$value": "1.25px",
+      "$description": "Radius of a canvas grid dot"
+    },
+    "dash-inferred": {
+      "$type": "other",
+      "$value": "6 4",
+      "$description": "Dash pattern for edges not resolved from the code"
+    },
+    "dash-data": {
+      "$type": "other",
+      "$value": "1.5 4",
+      "$description": "Dash pattern for reads and writes"
+    },
+    "dash-flow": {
+      "$type": "other",
+      "$value": "2 7",
+      "$description": "Dash pattern for the animated flow path"
+    },
+    "dash-flow-period": {
+      "$type": "number",
+      "$value": 9,
+      "$description": "Sum of dash-flow; the animation moves by one period"
+    },
+    "detail-zoom": {
+      "$type": "number",
+      "$value": 0.4,
+      "$description": "Below this zoom, cards drop their text and edges join up per card, so large diagrams stay cheap to draw"
+    },
+    "zoom-min": {
+      "$type": "number",
+      "$value": 0.2,
+      "$description": "Smallest zoom"
+    },
+    "zoom-max": {
+      "$type": "number",
+      "$value": 2.5,
+      "$description": "Largest zoom"
+    },
+    "zoom-step": {
+      "$type": "number",
+      "$value": 1.25,
+      "$description": "Zoom factor of one press of the zoom buttons or keys"
+    },
+    "zoom-wheel": {
+      "$type": "number",
+      "$value": 0.01,
+      "$description": "Zoom rate per pixel of wheel or trackpad pinch movement"
+    },
+    "zoom-focus": {
+      "$type": "number",
+      "$value": 0.85,
+      "$description": "Least zoom when the view moves to a single card"
+    },
+    "drag-threshold": {
+      "$value": "4px",
+      "$description": "How far the pointer moves before a press becomes a drag rather than a click"
+    },
+    "edge-margin": {
+      "$type": "number",
+      "$value": 0.25,
+      "$description": "How far the painted edge bitmap reaches beyond the view, as a share of the view. Bigger means fewer repaints while panning; smaller means each repaint is quicker"
+    },
+    "edge-margin-moving": {
+      "$type": "number",
+      "$value": 0.5,
+      "$description": "The edge bitmap's margin while the view moves. Wider means zooming out repaints less often"
+    },
+    "edge-density-moving": {
+      "$type": "number",
+      "$value": 1,
+      "$description": "Highest pixel density of the edge bitmap while the view moves; it is painted again at full density once the view is still"
+    },
+    "settle-delay": {
+      "$type": "duration",
+      "$value": "150ms",
+      "$description": "How long zooming must pause before text and edges are redrawn sharp"
+    },
+    "paint-delay": {
+      "$type": "duration",
+      "$value": "120ms",
+      "$description": "Without a worker, how long movement must pause before edges are repainted on the main thread"
+    },
+    "font-timeout": {
+      "$type": "duration",
+      "$value": "1500ms",
+      "$description": "How long to wait for web fonts before measuring cards with the fallback font"
+    },
+    "large-graph": {
+      "$type": "number",
+      "$value": 40,
+      "$description": "Above this many components, the layout stops preserving the graph's order and sweeps less, which is about five times faster"
+    }
+  },
+  "breakpoint": {
+    "$type": "dimension",
+    "narrow": {
+      "$value": "760px",
+      "$description": "At this viewport width and below, the sidebar and inspector become sheets over the canvas. tools/lint-design.ts checks that the viewer's media query uses this value."
+    }
+  }
+}

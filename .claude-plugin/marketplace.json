@@ -1,0 +1,14 @@
+{
+  "name": "openarc",
+  "description": "OpenArc: turn a code change into an interactive architecture diagram for review.",
+  "owner": {
+    "name": "oceanscom"
+  },
+  "plugins": [
+    {
+      "name": "openarc",
+      "source": "./",
+      "description": "Turns a code change into an interactive architecture diagram for review."
+    }
+  ]
+}

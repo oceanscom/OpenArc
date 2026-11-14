@@ -1,0 +1,115 @@
+  klar 0.2
+  change "Rate-limit authenticated requests per client"
+
+  # Context: unchanged, shown where the change connects to it
+
+  class Router
+    use(step) …
+    handle(request) → response …
+
+  module auth
+    requireAuth(request, next = rest of the chain) → response …
+
+  module db
+    orders.insert(user, order) → order …
+
+  # Changes
+
+~ module server
+~   buildServer(clock = systemClock) → router
+      router = create Router
++     limiter = create RateLimiter(clock)
+      router.use(auth.requireAuth)
++     router.use(limits.rateLimit(limiter))
+      router.get("/orders", orders.listOrders)
+      router.post("/orders", orders.createOrder)
+      Return router
+
+      no effects
+
++ module limits
+    rateLimit(limiter) → request step(request, next = rest of the chain)
+      If request has no user:
+        Return next(request)
+      decision = limiter.check(user.id, user.plan)
+      If decision is denied:
+        Return 429 + retry-after = decision.retryAfter
+      Return next(request)
+
+      no effects
+
++ class RateLimiter
+    needs clock
+    state buckets = one TokenBucket per client, never removed
+
+    check(client, plan) → allowed | denied
+      now = clock.now()
+      bucket = bucketFor(client, plan, now)
+      bucket.refill(now)
+      taken = bucket.tryTake()
+      If taken:
+        Return allowed
+      Return denied + retryAfter = bucket.secondsUntilNext(), rounded up
+
+      changes buckets · depends on time
+
+    private bucketFor(client, plan, now) → bucket
+      bucket = get buckets[client]
+      If bucket is missing:
+        limits = config.LIMITS[plan]
+        bucket = create TokenBucket(limits.burst, limits.perSecond, now)
+        add bucket to buckets for client
+      Return bucket
+
+      changes buckets
+
++ class TokenBucket
+    needs capacity, refillPerSecond, now
+    state tokens = capacity at start
+    state updatedAt = now at start
+
+    refill(now)
+      elapsed = now − updatedAt, in seconds
+      set tokens = min(capacity, tokens + elapsed × refillPerSecond)
+      set updatedAt = now
+
+      changes tokens, updatedAt
+
+    tryTake() → yes | no
+      If tokens < 1:
+        Return no
+      set tokens = tokens − 1
+      Return yes
+
+      changes tokens
+
+    secondsUntilNext() → seconds
+      If tokens ≥ 1:
+        Return 0
+      Return (1 − tokens) ÷ refillPerSecond
+
+      no effects
+
++ interface Clock
+    now() → time in ms
+    const systemClock = Clock that reads the system time
+
+~ module config
++   const LIMITS = burst size and refill rate for each plan
+      free: burst 20, then 1 per second
+      pro: burst 100, then 10 per second
+-   const MAX_ORDERS_PER_MINUTE = 5
+
+~ module orders
+-   state recentOrders = order times for each user
+    listOrders(request) → 200 + orders …
+~   createOrder(request) → 201 + order
+-     remove times older than 1 min from recentOrders[user]
+-     If recentOrders[user] has ≥ MAX_ORDERS_PER_MINUTE entries:
+-       Return 429
+-     add now to recentOrders[user]
+      order = Wait for db.orders.insert(user.id, request.body)
+      Return 201 + order
+
+-     changes recentOrders · depends on time
+      writes db

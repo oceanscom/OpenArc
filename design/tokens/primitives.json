@@ -1,0 +1,79 @@
+{
+  "$description": "Raw values, in OKLCH so equal lightness looks equally light. Never used directly by components: themes and semantic tokens refer to these, and only semantic tokens reach CSS.",
+  "palette": {
+    "$type": "color",
+    "neutral": {
+      "$description": "Greys carrying the logo indigo's hue (275) at very low chroma.",
+      "0": { "$value": "oklch(1 0 0)" },
+      "25": { "$value": "oklch(0.987 0.003 275)" },
+      "50": { "$value": "oklch(0.974 0.004 275)" },
+      "100": { "$value": "oklch(0.955 0.006 275)" },
+      "150": { "$value": "oklch(0.926 0.008 275)" },
+      "200": { "$value": "oklch(0.887 0.01 275)" },
+      "300": { "$value": "oklch(0.8 0.012 275)" },
+      "400": { "$value": "oklch(0.7 0.014 275)" },
+      "500": { "$value": "oklch(0.585 0.016 275)" },
+      "600": { "$value": "oklch(0.485 0.018 275)" },
+      "700": { "$value": "oklch(0.385 0.02 275)" },
+      "750": { "$value": "oklch(0.315 0.02 275)" },
+      "800": { "$value": "oklch(0.268 0.018 275)" },
+      "850": { "$value": "oklch(0.228 0.016 275)" },
+      "900": { "$value": "oklch(0.198 0.014 275)" },
+      "925": { "$value": "oklch(0.172 0.012 275)" },
+      "950": { "$value": "oklch(0.148 0.01 275)" },
+      "1000": { "$value": "oklch(0 0 0)" }
+    },
+    "indigo": {
+      "$description": "The logo colour. 600 and 400 are fixed; the rest are tints and shades of it.",
+      "50": { "$value": "#eef0fe" },
+      "100": { "$value": "#dadefd" },
+      "300": { "$value": "#a8b0ff" },
+      "400": { "$value": "#8e99ff" },
+      "600": { "$value": "#4353d6" },
+      "700": { "$value": "#3341b0" },
+      "900": { "$value": "#23264a" }
+    },
+    "jade": {
+      "$description": "Added. Status ramps share lightness and chroma per step and differ only in hue.",
+      "50": { "$value": "oklch(0.966 0.024 158)" },
+      "100": { "$value": "oklch(0.925 0.05 158)" },
+      "400": { "$value": "oklch(0.775 0.135 158)" },
+      "600": { "$value": "oklch(0.58 0.145 158)" },
+      "700": { "$value": "oklch(0.47 0.12 158)" },
+      "900": { "$value": "oklch(0.262 0.042 158)" }
+    },
+    "saffron": {
+      "$description": "Changed. Hue 70 keeps it golden rather than olive; lightness stops just above where yellow turns brown.",
+      "50": { "$value": "oklch(0.966 0.026 70)" },
+      "100": { "$value": "oklch(0.925 0.05 70)" },
+      "400": { "$value": "oklch(0.785 0.13 70)" },
+      "600": { "$value": "oklch(0.615 0.14 70)" },
+      "700": { "$value": "oklch(0.495 0.11 70)" },
+      "900": { "$value": "oklch(0.262 0.042 70)" }
+    },
+    "vermilion": {
+      "$description": "Removed.",
+      "50": { "$value": "oklch(0.966 0.024 22)" },
+      "100": { "$value": "oklch(0.925 0.05 22)" },
+      "400": { "$value": "oklch(0.775 0.135 22)" },
+      "600": { "$value": "oklch(0.58 0.165 22)" },
+      "700": { "$value": "oklch(0.47 0.12 22)" },
+      "900": { "$value": "oklch(0.262 0.042 22)" }
+    },
+    "azure": {
+      "$description": "Klar names and calls.",
+      "400": { "$value": "oklch(0.78 0.11 232)" },
+      "600": { "$value": "oklch(0.52 0.12 238)" }
+    },
+    "magenta": {
+      "$description": "Klar values.",
+      "400": { "$value": "oklch(0.78 0.12 345)" },
+      "600": { "$value": "oklch(0.53 0.16 350)" }
+    }
+  },
+  "fontFamily": {
+    "$type": "fontFamily",
+    "inter": { "$value": "\"Inter\", ui-sans-serif, system-ui, -apple-system, sans-serif" },
+    "jetbrains": { "$value": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, monospace" }
+  }
+}

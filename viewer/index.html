@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenArc</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%234353d6' stroke-linecap='round'%3E%3Cstyle%3E@media (prefers-color-scheme:dark)%7Bsvg%7Bstroke:%238e99ff%7D%7D%3C/style%3E%3Cpath d='M13.2 8.74A5.25 5.25 0 1 1 9.36 2.93' stroke-width='1.75'/%3E%3Ccircle cx='13.07' cy='6.64' r='1.75' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Every value here comes from a token in tokens.css. tools/lint-design.ts enforces it. */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--color-canvas-bg); color: var(--color-text-primary); font: var(--type-body-font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: var(--border-width-strong) solid var(--color-accent-solid); outline-offset: var(--border-width); }
+p, h1, h2, h3 { margin: 0; }
+#app { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); height: 100vh; height: 100dvh; }
+
+/* ---------- sidebar ---------- */
+#side { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; background: var(--color-surface-panel); border-right: var(--border-width) solid var(--color-border-default); z-index: var(--layer-panel); }
+.side-head { display: flex; align-items: center; gap: var(--space-2); height: var(--space-12); padding: 0 var(--space-5); border-bottom: var(--border-width) solid var(--color-border-subtle); }
+.side-head svg { width: var(--control-icon); height: var(--control-icon); color: var(--color-accent-solid); flex: none; }
+.side-body { overflow-y: auto; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-8); }
+.side-body h1 { margin-bottom: var(--space-2); }
+.side-body .summary { color: var(--color-text-secondary); }
+.stats { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.stat { display: inline-flex; align-items: center; height: var(--control-height-sm); padding: 0 var(--space-2); border-radius: var(--radius-sm); }
+.sec h2 { color: var(--color-text-tertiary); margin-bottom: var(--space-3); }
+.flows { display: grid; gap: var(--space-2); }
+.flow { display: grid; gap: var(--space-1); width: 100%; text-align: left; background: none; border: var(--border-width) solid var(--color-border-default); border-radius: var(--radius-md); padding: var(--space-3); cursor: pointer; transition: border-color var(--motion-duration-fast), background var(--motion-duration-fast); }
+.flow:hover { border-color: var(--color-border-strong); background: var(--color-surface-hover); }
+.flow .fn { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.flow .fn small { color: var(--color-text-quaternary); white-space: nowrap; }
+.flow .fd { display: none; color: var(--color-text-secondary); }
+.flow.on { border-color: var(--color-accent-solid); background: var(--color-accent-subtle); }
+.flow.on .fd { display: block; }
+.notes-list { display: grid; gap: var(--space-4); }
+.note { display: grid; gap: var(--space-1); width: 100%; text-align: left; background: none; border: 0; border-left: var(--border-width-strong) solid var(--color-border-strong); border-radius: 0; padding: var(--space-1) 0 var(--space-1) var(--space-3); cursor: pointer; color: var(--color-text-secondary); }
+.note:hover, .note.on { color: var(--color-text-primary); }
+.note.on { background: var(--color-surface-hover); }
+.note.k-risk { border-left-color: var(--color-status-removed-solid); } .note.k-risk .nk { color: var(--color-status-removed-text); }
+.note.k-behaviour { border-left-color: var(--color-status-changed-solid); } .note.k-behaviour .nk { color: var(--color-status-changed-text); }
+.note.k-note .nk { color: var(--color-text-tertiary); }
+.side-foot { display: grid; gap: var(--space-4); padding: var(--space-4) var(--space-5); border-top: var(--border-width) solid var(--color-border-subtle); }
+.legend { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2) var(--space-4); color: var(--color-text-tertiary); }
+.legend span { display: flex; align-items: center; gap: var(--space-2); }
+.legend .sw { width: var(--badge-dot); height: var(--badge-dot); border-radius: var(--radius-xs); flex: none; background: var(--st-solid); }
+.legend .sw.s-context { background: var(--color-surface-sunken); outline: var(--border-width) solid var(--color-border-strong); outline-offset: calc(-1 * var(--border-width)); }
+.legend svg { width: var(--space-6); height: var(--space-2); flex: none; overflow: visible; }
+.legend path { stroke: var(--color-text-tertiary); stroke-width: var(--diagram-edge-width); fill: none; }
+.legend .ln-inferred { stroke-dasharray: var(--diagram-dash-inferred); }
+.legend .ln-data { stroke-dasharray: var(--diagram-dash-data); stroke-linecap: round; }
+.legend .ln-creates { stroke-width: var(--diagram-edge-width-strong); }
+.foot-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); color: var(--color-text-quaternary); }
+.seg { display: inline-flex; border: var(--border-width) solid var(--color-border-default); border-radius: var(--radius-md); overflow: hidden; flex: none; }
+.seg button { height: var(--control-height-sm); padding: 0 var(--space-2); background: none; border: 0; cursor: pointer; color: var(--color-text-tertiary); }
+.seg button + button { border-left: var(--border-width) solid var(--color-border-default); }
+.seg button.on { background: var(--color-surface-hover); color: var(--color-text-primary); }
+
+/* ---------- status ----------
+   Each .s-<status> class (generated in tokens.css) sets --st-solid, --st-text and --st-subtle,
+   so every rule below covers every status. */
+.pill { display: inline-flex; align-items: center; height: var(--type-overline-line); padding: 0 var(--space-1); border-radius: var(--radius-xs); flex: none; }
+.pill, .stat, .count, .whole { color: var(--st-text); background: var(--st-subtle); }
+.tag { display: inline-flex; align-items: center; height: var(--type-code-meta-line); padding: 0 var(--space-1); border-radius: var(--radius-xs); color: var(--color-text-tertiary); outline: var(--border-width) solid var(--color-border-default); outline-offset: calc(-1 * var(--border-width)); }
+
+/* ---------- canvas ---------- */
+/* The stage must not clip: on macOS, Chrome can hand a moving layer to Core Animation only when it
+   is not clipped inside the window, and redraws it every frame otherwise, which halved the frame
+   rate while panning. The sidebar covers the left edge and the window clips the rest. */
+#stage { position: relative; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--space-6); text-align: center; color: var(--color-text-tertiary); pointer-events: none; }
+#loading.failed { color: var(--color-status-removed-text); }
+#stage.dragging { cursor: grabbing; }
+/* The world is one composited layer: panning and zooming move pixels the GPU already has. */
+#world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+/* The background, its dot grid and the edges are one opaque bitmap, painted by a worker and moved
+   with the view, so the GPU composites a single full-screen layer under the cards. Dimming fades
+   the bitmap; emphasis (hover, selection, flows) is drawn on #overlay, its own small layer. */
+#edges { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; will-change: transform; transition: opacity var(--motion-duration-base); }
+#overlay { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; will-change: transform; }
+
+.card { position: absolute; display: flex; flex-direction: column; background: var(--color-surface-card); border-radius: var(--radius-lg); outline: var(--border-width) solid var(--color-border-default); outline-offset: calc(-1 * var(--border-width)); box-shadow: var(--shadow-raised); overflow: hidden; content-visibility: auto; }
+.card.s-context { background: var(--color-surface-sunken); box-shadow: none; }
+.card.selc { box-shadow: 0 0 0 var(--border-width-strong) var(--color-accent-solid), var(--shadow-raised); }
+.card-head { flex: none; height: var(--card-head-height); padding: var(--card-padding-y) var(--card-padding-x); cursor: pointer; }
+.card-meta { display: flex; align-items: center; gap: var(--space-2); height: var(--type-code-meta-line); color: var(--color-text-quaternary); white-space: nowrap; }
+.card-meta .path { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.card-title { display: flex; align-items: center; gap: var(--space-2); height: var(--type-heading-line); }
+.card-title .cname { min-width: 0; margin-right: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-title .step { margin-left: 0; }
+.counts { display: inline-flex; gap: var(--space-1); flex: none; }
+.count { display: inline-flex; align-items: center; height: var(--type-code-sm-line); padding: 0 var(--space-1); border-radius: var(--radius-xs); font-weight: var(--font-weight-semibold); }
+.whole { display: inline-grid; place-items: center; flex: none; width: var(--badge-mark); height: var(--badge-mark); border-radius: var(--radius-xs); }
+.card.s-context .cname { color: var(--color-text-secondary); }
+.card-sum { flex: none; height: var(--card-summary-height); padding: 0 var(--card-padding-x) var(--card-padding-y); color: var(--color-text-tertiary); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.rows { flex: none; list-style: none; margin: 0; padding: var(--card-padding-y) 0; box-shadow: inset 0 var(--border-width) 0 var(--color-border-subtle); }
+.row { display: flex; align-items: center; gap: var(--space-2); height: var(--card-row-height); padding: 0 var(--card-padding-x); cursor: pointer; white-space: nowrap; transition: background var(--motion-duration-fast), opacity var(--motion-duration-base); }
+.row:hover { background: var(--color-surface-hover); }
+.row .g { width: var(--card-gutter); flex: none; text-align: center; color: var(--st-solid); }
+.row .mk { width: var(--card-kind); flex: none; color: var(--color-text-quaternary); }
+.row .mn { flex: none; }
+.row .sig { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-quaternary); }
+.row.s-removed .mn { text-decoration: line-through; text-decoration-color: var(--color-status-removed-solid); color: var(--color-text-tertiary); }
+.row.s-context .mn { color: var(--color-text-tertiary); }
+/* Inside a changed class, changed members are tinted like lines in a diff, with a bar.
+   In a wholly added or removed class the rows stay plain: the square in the header says it. */
+.card.s-changed .row:not(.s-context) { background: var(--st-subtle); box-shadow: inset var(--card-row-bar) 0 0 var(--st-solid); }
+.card .rows .row.sel { background: var(--color-surface-selected); }
+.row.sel .mn { color: var(--color-accent-text); }
+.step { display: none; align-items: center; justify-content: center; flex: none; width: var(--badge-size); height: var(--badge-size); margin-left: auto; border-radius: var(--radius-full); background: var(--color-accent-solid); color: var(--color-text-on-accent); }
+.step.on { display: inline-flex; }
+
+.edge-g { color: var(--st-solid); }
+.edge { fill: none; stroke: currentColor; stroke-width: var(--diagram-edge-width); stroke-linecap: round; }
+.edge-g.inferred .edge { stroke-dasharray: var(--diagram-dash-inferred); stroke-linecap: butt; }
+.edge-g.k-reads .edge, .edge-g.k-writes .edge { stroke-dasharray: var(--diagram-dash-data); }
+.head { fill: currentColor; stroke: currentColor; stroke-width: var(--border-width); stroke-linejoin: round; transform-box: view-box; transform-origin: 0 0; }
+.edge-g.k-creates .edge, .edge-g.hov .edge, .edge-g.hl .edge { stroke-width: var(--diagram-edge-width-strong); }
+.edge-g.k-creates .head, .edge-g.hov .head, .edge-g.hl .head { transform: scale(var(--diagram-arrow-scale-strong)); }
+.flowpath { fill: none; stroke: var(--color-accent-solid); stroke-width: var(--diagram-flow-width); stroke-linecap: round; stroke-dasharray: var(--diagram-dash-flow); animation: march var(--motion-duration-slow) linear infinite; }
+@keyframes march { to { stroke-dashoffset: calc(-1 * var(--diagram-dash-flow-period)); } }
+.flowheads { color: var(--color-accent-solid); }
+.flowheads .head { transform: scale(var(--diagram-arrow-scale-strong)); }
+
+.focus .card:not(.hl) { opacity: var(--opacity-dimmed); }
+.focus .card.hl .row:not(.hl) { opacity: var(--opacity-dimmed-row); }
+.focus #edges { opacity: var(--opacity-dimmed-edge); }
+
+/* Far out, text is too small to read: skip drawing it and keep the card's shape and colours. */
+#world.far .card { box-shadow: none; }
+#world.far .card-meta, #world.far .card-sum, #world.far .row > * { visibility: hidden; }
+
+.zoombar { position: absolute; right: var(--space-4); bottom: var(--space-4); z-index: var(--layer-canvas-controls); display: flex; align-items: center; height: var(--control-height); background: var(--color-surface-panel); border-radius: var(--radius-md); outline: var(--border-width) solid var(--color-border-default); outline-offset: calc(-1 * var(--border-width)); box-shadow: var(--shadow-raised); overflow: hidden; transition: right var(--motion-duration-base) var(--motion-easing-standard); }
+#app.inspecting .zoombar { right: calc(var(--inspector-width) + var(--space-4)); }
+.zoombar button { width: var(--control-height); height: 100%; background: none; border: 0; cursor: pointer; color: var(--color-text-secondary); }
+.zoombar button:hover { background: var(--color-surface-hover); }
+.zoombar .pct { width: var(--space-12); text-align: center; color: var(--color-text-tertiary); }
+.zoombar .fit { width: auto; padding: 0 var(--space-3); border-left: var(--border-width) solid var(--color-border-default); }
+#sideToggle { display: none; }
+
+/* ---------- inspector ---------- */
+#drawer { position: absolute; top: 0; right: 0; bottom: 0; z-index: var(--layer-overlay); width: min(var(--inspector-width), 100%); background: var(--color-surface-panel); border-left: var(--border-width) solid var(--color-border-default); box-shadow: var(--shadow-overlay); overflow-y: auto; transform: translateX(100%); transition: transform var(--motion-duration-base) var(--motion-easing-standard); }
+#drawer.open { transform: none; }
+.dw { padding: var(--space-4) var(--space-6) var(--space-10); }
+.dw-top { display: flex; align-items: center; gap: var(--space-2); height: var(--control-height); }
+.crumb { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-quaternary); }
+.x { margin-left: auto; flex: none; width: var(--control-height); height: var(--control-height); background: none; border: 0; border-radius: var(--radius-md); cursor: pointer; color: var(--color-text-tertiary); }
+.x svg { width: var(--control-icon); height: var(--control-icon); }
+.x:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+.dw h2 { margin: var(--space-2) 0; word-break: break-word; }
+.dw h2 .cn { color: var(--color-text-quaternary); font-weight: var(--font-weight-medium); }
+.badges { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.dw .lead { margin-top: var(--space-4); }
+.dw section { margin-top: var(--space-6); }
+.dw h3 { color: var(--color-text-tertiary); margin-bottom: var(--space-2); }
+pre.klar, pre.code { margin: 0; padding: var(--space-3) 0; background: var(--color-surface-sunken); border-radius: var(--radius-md); outline: var(--border-width) solid var(--color-border-subtle); outline-offset: calc(-1 * var(--border-width)); overflow-x: auto; }
+pre .ln { display: block; min-height: var(--type-code-line); padding-right: var(--space-4); white-space: pre; }
+pre.klar .gut { display: inline-block; width: var(--space-6); text-align: center; color: var(--color-text-quaternary); user-select: none; }
+pre.klar .ln-add { background: var(--color-status-added-subtle); } pre.klar .ln-add .gut { color: var(--color-status-added-solid); }
+pre.klar .ln-del { background: var(--color-status-removed-subtle); } pre.klar .ln-del .gut { color: var(--color-status-removed-solid); }
+pre.klar .ln-chg .gut { color: var(--color-status-changed-solid); }
+pre.klar .ind { display: inline-block; width: 2ch; height: var(--type-code-line); vertical-align: top; }
+pre.klar .ind.rail { box-shadow: inset var(--border-width-strong) 0 0 var(--color-accent-rail); }
+.t-kw { color: var(--color-syntax-control); font-weight: var(--font-weight-semibold); }
+.t-decl { color: var(--color-syntax-declaration); }
+.t-fn { color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+.t-ref { color: var(--color-syntax-name); }
+.t-call { color: var(--color-syntax-name); text-decoration: underline dotted; text-underline-offset: var(--space-1); cursor: pointer; }
+.t-call:hover { text-decoration-style: solid; }
+.t-val { color: var(--color-syntax-value); }
+.t-verb { color: var(--color-syntax-verb); font-weight: var(--font-weight-medium); }
+.t-eff { color: var(--color-syntax-effect); font-style: italic; }
+.t-op { color: var(--color-syntax-operator); }
+.t-com { color: var(--color-syntax-comment); font-style: italic; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip { display: inline-flex; align-items: center; height: var(--control-height-sm); padding: 0 var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); outline: var(--border-width) solid var(--color-border-default); outline-offset: calc(-1 * var(--border-width)); }
+.chip.gone { text-decoration: line-through; color: var(--color-status-removed-text); background: var(--color-status-removed-subtle); outline: 0; }
+.chip.new { color: var(--color-status-added-text); background: var(--color-status-added-subtle); outline: 0; }
+.links { list-style: none; margin: 0; padding: 0; }
+.links button { display: flex; align-items: center; gap: var(--space-3); width: calc(100% + var(--space-4)); height: var(--control-height); margin: 0 calc(-1 * var(--space-2)); padding: 0 var(--space-2); background: none; border: 0; border-radius: var(--radius-md); cursor: pointer; text-align: left; }
+.links button:hover { background: var(--color-surface-hover); }
+.links .ek { width: var(--space-12); flex: none; color: var(--color-text-quaternary); }
+.links .en .cn { color: var(--color-text-quaternary); }
+.links .inf { margin-left: auto; color: var(--color-text-tertiary); padding: 0 var(--space-2); border-radius: var(--radius-xs); outline: var(--border-width) dashed var(--color-border-strong); outline-offset: calc(-1 * var(--border-width)); white-space: nowrap; }
+.dot { width: var(--badge-dot); height: var(--badge-dot); border-radius: var(--radius-full); flex: none; background: var(--st-solid); }
+.dw .notes { display: grid; gap: var(--space-3); }
+.dw .notes h3 { margin-bottom: 0; }
+.dw .notes .note { cursor: default; }
+details.raw { margin-top: var(--space-8); padding-top: var(--space-4); border-top: var(--border-width) solid var(--color-border-subtle); }
+details.raw summary { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; color: var(--color-text-tertiary); list-style: none; }
+details.raw summary::-webkit-details-marker { display: none; }
+details.raw summary svg { width: var(--control-icon); height: var(--control-icon); transition: transform var(--motion-duration-fast); }
+details.raw[open] summary svg { transform: rotate(90deg); }
+details.raw .why { margin: var(--space-2) 0 var(--space-3); color: var(--color-text-quaternary); }
+.raw .crumb { margin-bottom: var(--space-2); }
+.raw .seg { margin-bottom: var(--space-3); }
+pre.code .no { display: inline-block; width: var(--space-10); padding-right: var(--space-3); text-align: right; color: var(--color-text-quaternary); user-select: none; }
+
+/* The width is the breakpoint.narrow token; tools/lint-design.ts checks it. */
+@media (max-width: 760px) {
+  #app { grid-template-columns: minmax(0, 1fr); }
+  #side { position: absolute; inset: 0 0 auto 0; max-height: 80dvh; border-right: 0; border-bottom: var(--border-width) solid var(--color-border-default); box-shadow: var(--shadow-raised); transform: translateY(-101%); transition: transform var(--motion-duration-base) var(--motion-easing-standard); }
+  #app.side-open #side { transform: none; }
+  #sideToggle { display: inline-flex; align-items: center; position: absolute; left: var(--space-4); top: var(--space-4); z-index: var(--layer-canvas-controls); height: var(--control-height); padding: 0 var(--space-3); background: var(--color-surface-panel); border: var(--border-width) solid var(--color-border-default); border-radius: var(--radius-md); box-shadow: var(--shadow-raised); cursor: pointer; }
+  #drawer { top: auto; height: 80dvh; width: 100%; border-left: 0; border-top: var(--border-width) solid var(--color-border-default); border-radius: var(--radius-lg) var(--radius-lg) 0 0; transform: translateY(101%); }
+  #app.inspecting .zoombar { right: var(--space-4); }
+  .dw { padding: var(--space-4) var(--space-4) var(--space-8); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side"></aside>
+  <main id="stage">
+    <canvas id="edges"></canvas>
+    <div id="world"><svg id="overlay"></svg><div id="nodes"></div></div>
+    <div id="loading" class="type-label">Laying out the diagram…</div>
+    <button id="sideToggle" class="type-label" type="button">Overview</button>
+    <div class="zoombar">
+      <button type="button" data-z="out" aria-label="Zoom out">−</button>
+      <span class="pct type-code-meta">100%</span>
+      <button type="button" data-z="in" aria-label="Zoom in">+</button>
+      <button type="button" class="fit type-label" data-z="fit">Fit</button>
+    </div>
+    <aside id="drawer" aria-live="polite"></aside>
+  </main>
+</div>
+
+<!-- tools/page.ts inlines each of these in a built page. -->
+<script id="openarc-data" type="application/json"></script>
+<script id="openarc-layout" type="application/json"></script>
+<script src="../vendor/elkjs/elk-api.js"></script>
+<script id="openarc-elk" type="text/plain" data-src="../vendor/elkjs/elk-worker.min.js"></script>
+<script type="module" src="src/main.ts"></script>
+</body>
+</html>
